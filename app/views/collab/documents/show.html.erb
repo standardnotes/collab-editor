@@ -1,0 +1,13 @@
+<%= javascript_include_tag  params[:controller] %>
+
+<div id="wrapper">
+  <% if @doc %>
+    <div>
+      <strong>Sharing URL</strong>:
+      <span><%= @url %></span><span id="url-key"></span>
+    </div>
+    <textarea id="editor"></textarea>
+  <% else %>
+  Not found
+  <% end %>
+</div>

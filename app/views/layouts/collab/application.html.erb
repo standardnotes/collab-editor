@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Collab</title>
+  <%= stylesheet_link_tag    "collab/application", media: "all" %>
+  <%= javascript_include_tag "collab/application" %>
+  <%= javascript_include_tag "aes" %>
+  <%= javascript_include_tag "hmac-sha256" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+<%= yield %>
+
+</body>
+</html>
