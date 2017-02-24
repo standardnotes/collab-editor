@@ -2,6 +2,7 @@ class CreateCollabDocuments < ActiveRecord::Migration[5.0]
   def change
     create_table :collab_documents do |t|
       t.string :uuid
+      t.string :edit_token
       t.timestamps
     end
 

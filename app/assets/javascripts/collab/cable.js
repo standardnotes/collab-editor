@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       logLevel: 0
     });
 
-    patchText= TextPatcher.create({
+    patchText = TextPatcher.create({
       realtime: _chainpad,
     })
 
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       var success = App.socket.channel.post(message);
       setTimeout(function () {
         if(!success) {
-          console.log("MESSAGE NOT SUCCESSFUL");
+          console.log("Message not successful");
         }
         cb();
       }, 1);
@@ -68,7 +68,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
   App.textEditorDidMakeChanges = function(text) {
-    patchText(text);
+    if(patchText) {
+      patchText(text);
+    }
   }
 
    function posToCursor(position, newText) {

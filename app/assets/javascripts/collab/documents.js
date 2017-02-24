@@ -3,7 +3,8 @@
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-  var textarea, editor;
+  var textarea, editor, isSubscribedToDoc;
+  var isInSN = window.parent != window;
 
   function getEditorValue() {
     return editor.getDoc().getValue() || "";
@@ -20,7 +21,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     editor.on("change", function(cm, change){
-      App.textEditorDidMakeChanges(getEditorValue());
+      if(isSubscribedToDoc) {
+        App.textEditorDidMakeChanges(getEditorValue());
+      }
+      sendDocToSN()
     })
   }
 
@@ -41,14 +45,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
   function subscribeToDocId(docId) {
     configureEditor();
     App.socket.subscribeToDoc(docId, function(message){})
+    isSubscribedToDoc = true;
     refreshKey();
+
+    var incomingText = sessionStorage.getItem("sn_text");
+    if(incomingText) {
+      editor.getDoc().setValue(incomingText);
+      sessionStorage.removeItem("sn_text");
+    }
   }
 
   var location = window.location.href;
   var uuidResults = location.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
   var uuid = uuidResults ? uuidResults[0] : null;
   var hasDocument = uuid != null;
-  var noteId = sessionStorage.getItem("lastNoteId");
+  var noteId = sessionStorage.getItem("sn_lastNoteId");
 
   var key, didGenerateKey;
 
@@ -88,8 +99,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
       if(editingUrl) {
         editingElement.innerHTML = editingUrl;
         editingElement.href = editingUrl;
+        sendDocToSN();
       } else {
-        editingElement.parentNode.removeChild(editingElement);
+        var editingWrapper = document.getElementById("editing-url-wrapper");
+        editingWrapper.parentNode.removeChild(editingWrapper);
       }
 
       var viewingElement = document.getElementById("viewing-url");
@@ -98,21 +111,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
   }
 
-  if(window.parent != window) {
-    if(hasDocument) {
-      // inform parent of new document
-      window.parent.postMessage({text: buildParamsString({id: uuid, key: key}), id: noteId}, '*');
-      subscribeToDocId(uuid);
-    } else {
-      window.parent.postMessage({status: "ready"}, '*');
-    }
-  } else {
-    if(!hasDocument) {
-      createNewDocument();
-    } else {
-      subscribeToDocId(uuid);
-    }
-  }
+
+  // ** Communication with Standard Notes App **
 
   function buildParamsString(doc) {
     var string = "";
@@ -123,27 +123,68 @@ document.addEventListener("DOMContentLoaded", function(event) {
     return string;
   }
 
-  window.addEventListener("message", function(event){
-
-    var text = event.data.text || "";
-    sessionStorage.setItem("lastNoteId", event.data.id);
-
-    var paramString = text.split("%%Do not modify above this line%%")[0];
-    var lines = paramString.split("\n");
-    var params = {};
-    lines.forEach(function(line){
-      var comps = line.split(": ");
-      var key = comps[0];
-      var value = comps[1];
-      params[key] = value;
-    })
-
-    let key = params["key"];
-    let docId = params["id"]
-    if (docId && docId.length) {
-      window.location.href = "/collab/doc/" + docId + "#key=" + key;
-    } else {
-      createNewDocument();
+  function sendDocToSN() {
+    if(!isInSN) {
+      return;
     }
-  }, false);
+
+    var noteBody = buildParamsString({url: window.location.href});
+    if(editor) {
+      var disclaimer = "// text you enter below will not transfer to the live editor.\n// the below is just a backup for your records";
+      noteBody += "\n\n" + disclaimer + "\n\n" + getEditorValue();
+    }
+    window.parent.postMessage({text: noteBody, id: noteId}, '*');
+  }
+
+  if(isInSN) {
+    if(hasDocument) {
+      // inform parent of new document
+      sendDocToSN();
+      subscribeToDocId(uuid);
+    } else {
+      window.parent.postMessage({status: "ready"}, '*');
+    }
+    window.addEventListener("message", function(event){
+      var text = event.data.text || "";
+      sessionStorage.setItem("sn_lastNoteId", event.data.id);
+
+      var splitTarget = "%%Do not modify above this line%%";
+      var comps = text.split(splitTarget);
+      var snText;
+      var hasParams = text.indexOf(splitTarget) != -1;
+      if(hasParams) {
+        snText = comps[1];
+      } else {
+        snText = text;
+        sessionStorage.setItem("sn_text", snText)
+      }
+
+
+      var paramString = comps[0];
+      var params = {};
+      var lines = paramString.split("\n");
+      lines.forEach(function(line){
+        var comps = line.split(": ");
+        var key = comps[0];
+        var value = comps[1];
+        params[key] = value;
+      })
+
+      let url = params["url"];
+      if (url) {
+        window.location.href = url;
+      } else {
+        createNewDocument();
+      }
+    }, false);
+  }
+
+  if(!isInSN){
+    if(!hasDocument) {
+      createNewDocument();
+    } else {
+      subscribeToDocId(uuid);
+    }
+  }
+
 })
