@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   function initChainpad() {
     _chainpad = ChainPad.create({
-      checkpointInterval: 3,
       logLevel: 0
     });
 
