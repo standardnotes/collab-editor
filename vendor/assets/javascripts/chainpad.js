@@ -1330,7 +1330,6 @@ var check = Operation.check = function (op, docLength_opt) {
     Common.assert(Common.isUint(op.toRemove));
     Common.assert(typeof(op.toInsert) === 'string');
     Common.assert(op.toRemove > 0 || op.toInsert.length > 0);
-    console.log("CHECK:", docLength_opt, op);
     Common.assert(typeof(docLength_opt) !== 'number' || op.offset + op.toRemove <= docLength_opt);
 };
 

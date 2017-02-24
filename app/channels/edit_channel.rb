@@ -12,21 +12,20 @@ class EditChannel < ApplicationCable::Channel
   def retrieve(data)
     doc = Collab::Document.find_by_uuid(data['doc_id'])
     ActionCable.server.broadcast("doc_#{doc.uuid}_#{params['client_id']}", {
-      :message => doc.content,
-      :iv => doc.iv,
-      :auth => doc.auth,
+      :patches => doc.patches,
       :client_id => data['client_id'],
-      :retrieve => true
-      })
+      :initial_retrieve => true
+    })
   end
 
   def post(data)
-    message = data['message']
     doc = Collab::Document.find_by_uuid(data['doc_id'])
-    doc.content = message
-    doc.iv = data["iv"]
-    doc.auth = data["auth"]
+    patch = doc.patches.create({
+      :content => data['content'],
+      :iv => data["iv"],
+      :auth => data["auth"]
+    })
     doc.save
-    EditChannel.broadcast_to(doc, {:message => message, :iv => data["iv"], :auth => data["auth"], :client_id => data['client_id']})
+    EditChannel.broadcast_to(doc, {:patch => patch, :client_id => data['client_id']})
   end
 end

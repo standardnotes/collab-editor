@@ -3,23 +3,28 @@
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-  var textarea = App.textarea = document.getElementById("code");
-  var editor = App.editor = CodeMirror.fromTextArea(textarea, {
-    mode: "text/html",
-    lineNumbers: true
-  });
-
-  var patchText = App.patchText = TextPatcher.create({
-    realtime: App.chainpad,
-    //logging: true
-  });
-
-  // var editor = document.getElementById("editor");
-
-  var settingValue = false;
+  var textarea, editor;
 
   function getEditorValue() {
     return editor.getDoc().getValue() || "";
+  }
+
+  function configureEditor() {
+    textarea = document.getElementById("code");
+    editor = App.editor = CodeMirror.fromTextArea(textarea, {
+      mode: "text/html",
+      lineNumbers: true
+    });
+
+    editor.on("change", function(cm, change){
+      if(settingValue) {
+        console.log("IGNORING CHANGE");
+        settingValue = false;
+        // return;
+      }
+
+      App.textEditorDidMakeChanges(getEditorValue());
+    })
   }
 
   App.registerChainpadObserver({
@@ -32,11 +37,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
   })
 
+  var settingValue = false;
+
   function createNewDocument() {
     window.location.href = "/collab/doc/new";
   }
 
   function subscribeToDocId(docId) {
+    configureEditor();
     App.socket.subscribeToDoc(docId, function(message){
       // editor.getDoc().setValue(message);
     })
@@ -117,26 +125,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
       createNewDocument();
     }
   }, false);
-
-  if(editor) {
-    editor.on("change", function(cm, change){
-      if(settingValue) {
-        console.log("IGNORING CHANGE");
-        settingValue = false;
-        return;
-      }
-
-      console.log("SETTING PATCH TEXT STATE", getEditorValue());
-      patchText(getEditorValue());
-      // App.socket.channel.post(getEditorValue());
-
-    //   if(change.origin.indexOf("delete") != -1) {
-    //     // removed text
-    //     App.onTextChange(fromIndex, change.to.ch - change.from.ch, text);
-    //   } else {
-    //     // added text
-    //     App.onTextChange(fromIndex, 0, text);
-    //   }
-    })
-  }
 })
