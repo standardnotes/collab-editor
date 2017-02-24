@@ -3,7 +3,34 @@
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-  var editor = document.getElementById("editor");
+  var textarea = App.textarea = document.getElementById("code");
+  var editor = App.editor = CodeMirror.fromTextArea(textarea, {
+    mode: "text/html",
+    lineNumbers: true
+  });
+
+  var patchText = App.patchText = TextPatcher.create({
+    realtime: App.chainpad,
+    //logging: true
+  });
+
+  // var editor = document.getElementById("editor");
+
+  var settingValue = false;
+
+  function getEditorValue() {
+    return editor.getDoc().getValue() || "";
+  }
+
+  App.registerChainpadObserver({
+    getContent: function() {
+      return getEditorValue();
+    },
+    setContent: function(content) {
+      settingValue = true;
+      editor.getDoc().setValue(content);
+    }
+  })
 
   function createNewDocument() {
     window.location.href = "/collab/doc/new";
@@ -11,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   function subscribeToDocId(docId) {
     App.socket.subscribeToDoc(docId, function(message){
-      editor.value = message;
+      // editor.getDoc().setValue(message);
     })
   }
 
@@ -92,9 +119,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
   }, false);
 
   if(editor) {
-    editor.addEventListener("input", function(event){
-      var text = event.target.value;
-      App.socket.channel.post(text);
+    editor.on("change", function(cm, change){
+      if(settingValue) {
+        console.log("IGNORING CHANGE");
+        settingValue = false;
+        return;
+      }
+
+      console.log("SETTING PATCH TEXT STATE", getEditorValue());
+      patchText(getEditorValue());
+      // App.socket.channel.post(getEditorValue());
+
+    //   if(change.origin.indexOf("delete") != -1) {
+    //     // removed text
+    //     App.onTextChange(fromIndex, change.to.ch - change.from.ch, text);
+    //   } else {
+    //     // added text
+    //     App.onTextChange(fromIndex, 0, text);
+    //   }
     })
   }
 })

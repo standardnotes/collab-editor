@@ -3,9 +3,13 @@
 <head>
   <title>Standard Notes Collaborative Editor</title>
   <%= stylesheet_link_tag    "collab/application", media: "all" %>
+  <%= stylesheet_link_tag "codemirror" %>
   <%= javascript_include_tag "collab/application" %>
   <%= javascript_include_tag "aes" %>
   <%= javascript_include_tag "hmac-sha256" %>
+  <%= javascript_include_tag "chainpad" %>
+  <%= javascript_include_tag "codemirror" %>
+  <%= javascript_include_tag "TextPatcher" %>
   <%= csrf_meta_tags %>
 </head>
 <body>
