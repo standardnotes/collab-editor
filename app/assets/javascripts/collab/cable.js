@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   function initChainpad() {
     _chainpad = ChainPad.create({
       checkpointInterval: 3,
-      // logLevel: 0
+      logLevel: 0
     });
 
     patchText= TextPatcher.create({
@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         var result = App.crypto.encrypt(patch, App.encryptionKey(), App.authKey());
-        var data = {content: result.cipher, iv: result.iv, auth: result.auth, doc_id: docId, client_id: clientId};
+        var data = {content: result.cipher, iv: result.iv, auth: result.auth, edit_token: App.editToken, doc_id: docId, client_id: clientId};
         return this.perform('post', data);
       }
     });

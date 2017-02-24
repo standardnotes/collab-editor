@@ -29,22 +29,48 @@ html, body {
   flex-direction: column;
 }
 
-#editor {
+.CodeMirror {
   flex: 1;
   width: 100%;
   height: 100%;
   resize: none;
-  font-size: 18px;
-  border: 1px solid rgb(226, 226, 226);
+  font-size: 16px;
   border-radius: 4px;
   padding: 15px;
   margin-top: 10px;
   font-family: monospace;
+  margin-top: -3px;
 }
 
-#url {
+.url-wrapper {
   word-wrap: break-word;
   word-break: break-all;
+  font-size: 10px;
+  margin-bottom: 3px;
+
+  opacity: 0.3;
+
+  &:hover {
+    opacity: 1.0;
+  }
+
+  .label {
+    font-weight: bold;
+  }
+
+  .url {
+    font-weight: bold;
+    color: rgba(black, 0.5);
+    font-size: 10px;
+    text-decoration: none;
+
+
+    &:visited { text-decoration: none; color:black; }
+    &:hover {
+      text-decoration: underline;
+      color: black;
+    }
+  }
 }
 
 * {

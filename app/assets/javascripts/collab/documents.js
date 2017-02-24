@@ -10,10 +10,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
   }
 
   function configureEditor() {
-    textarea = document.getElementById("code");
+    textarea = document.getElementById("editor");
+
     editor = App.editor = CodeMirror.fromTextArea(textarea, {
       mode: "text/html",
-      lineNumbers: true
+      lineNumbers: true,
+      lineWrapping: true,
+      mode: "markdown"
     });
 
     editor.on("change", function(cm, change){
@@ -37,9 +40,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   function subscribeToDocId(docId) {
     configureEditor();
-    App.socket.subscribeToDoc(docId, function(message){
-      // editor.getDoc().setValue(message);
-    })
+    App.socket.subscribeToDoc(docId, function(message){})
+    refreshKey();
   }
 
   var location = window.location.href;
@@ -49,13 +51,52 @@ document.addEventListener("DOMContentLoaded", function(event) {
   var noteId = sessionStorage.getItem("lastNoteId");
 
   var key, didGenerateKey;
-  if(location.indexOf("#key=") != -1) {
-    key = location.split("#key=").slice(-1)[0];
-  } else {
-    key = App.crypto.generateRandomKey(32);
-    didGenerateKey = true;
+
+  function refreshKey() {
+    if(location.indexOf("#key=") != -1) {
+      key = location.split("#key=").slice(-1)[0];
+    } else {
+      key = App.crypto.generateRandomKey(32);
+      didGenerateKey = true;
+    }
+    setKey(key);
   }
-  setKey(key);
+
+  function setKey(key) {
+    App.key = key;
+
+    if(window.location.href.indexOf("#key") == -1) {
+      window.history.pushState('Document', 'Document', "#key=" + key);
+    }
+
+    if(textarea) {
+      var url = window.location.href;
+      var etString = "?et=";
+      var etIndex = url.indexOf(etString);
+      var editingUrl, viewingUrl, editToken;
+      if(etIndex != -1) {
+        // has edit token
+        var editToken = App.editToken = url.substring(etIndex + etString.length, url.indexOf("#"));
+        editingUrl = url;
+        viewingUrl = url.replace(etString + editToken, "");
+      } else {
+        // no edit token
+        viewingUrl = url;
+      }
+
+      var editingElement = document.getElementById("editing-url");
+      if(editingUrl) {
+        editingElement.innerHTML = editingUrl;
+        editingElement.href = editingUrl;
+      } else {
+        editingElement.parentNode.removeChild(editingElement);
+      }
+
+      var viewingElement = document.getElementById("viewing-url");
+      viewingElement.innerHTML = viewingUrl;
+      viewingElement.href = viewingUrl;
+    }
+  }
 
   if(window.parent != window) {
     if(hasDocument) {
@@ -70,18 +111,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
       createNewDocument();
     } else {
       subscribeToDocId(uuid);
-    }
-  }
-
-  function setKey(key) {
-    App.key = key;
-    var span = document.getElementById("url-key");
-    if(span) {
-      span.textContent = "#key=" + key;
-    }
-
-    if(window.location.href.indexOf("#key") == -1) {
-      window.history.pushState('Document', 'Document', "#key=" + key);
     }
   }
 

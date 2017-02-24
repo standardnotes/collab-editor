@@ -2,11 +2,18 @@
 
 <div id="wrapper">
   <% if @doc %>
-    <div id="url">
-      <strong>Sharing URL</strong>:
-      <span><%= @url %></span><span id="url-key"></span>
+
+    <div id="viewing-url-wrapper" class="url-wrapper">
+      <span class="label">Viewing URL</span>:
+      <a id="viewing-url" class="url" target="_blank"></a>
     </div>
-    <textarea id="code" name="code"></textarea>
+
+    <div id="editing-url-wrapper" class="url-wrapper">
+      <span class="label">Editing URL</span>:
+      <a id="editing-url" class="url" target="_blank"></a>
+    </div>
+
+    <textarea id="editor" name="editor"></textarea>
   <% else %>
 
   <% end %>

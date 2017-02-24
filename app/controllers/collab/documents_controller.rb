@@ -24,11 +24,11 @@ module Collab
     end
 
     def new
-      puts "\n\nCreating new document\n\n"
       @doc = Document.new
       @doc.uuid = SecureRandom.uuid
+      @doc.edit_token = Digest::SHA256.hexdigest(SecureRandom.random_bytes())[0,24]
       @doc.save
-      redirect_to(url)
+      redirect_to(url + "?et=#{@doc.edit_token}")
     end
 
   end

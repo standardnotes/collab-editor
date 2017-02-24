@@ -20,6 +20,13 @@ class EditChannel < ApplicationCable::Channel
 
   def post(data)
     doc = Collab::Document.find_by_uuid(data['doc_id'])
+
+    edit_token = data["edit_token"]
+    if edit_token != doc.edit_token
+      puts "Edit token not authorized, returning"
+      return
+    end
+
     patch = doc.patches.create({
       :content => data['content'],
       :iv => data["iv"],
