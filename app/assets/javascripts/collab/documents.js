@@ -17,12 +17,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     editor.on("change", function(cm, change){
-      if(settingValue) {
-        console.log("IGNORING CHANGE");
-        settingValue = false;
-        // return;
-      }
-
       App.textEditorDidMakeChanges(getEditorValue());
     })
   }
@@ -31,13 +25,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     getContent: function() {
       return getEditorValue();
     },
+
     setContent: function(content) {
-      settingValue = true;
       editor.getDoc().setValue(content);
     }
   })
-
-  var settingValue = false;
 
   function createNewDocument() {
     window.location.href = "/collab/doc/new";

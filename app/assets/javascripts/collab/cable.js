@@ -18,7 +18,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   function initChainpad() {
     _chainpad = ChainPad.create({
-      checkpointInterval: 3
+      checkpointInterval: 3,
+      // logLevel: 0
     });
 
     patchText= TextPatcher.create({
@@ -49,7 +50,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     _chainpad.onMessage(function(message, cb){
-      console.log("ON MESSAGE", message);
       var success = App.socket.channel.post(message);
       setTimeout(function () {
         if(!success) {
@@ -63,13 +63,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
   }
 
   function getChainpad() {
-    if(!_chainpad) {
-
-    }
     return _chainpad;
   }
-
-  var currentText = "";
 
 
   App.textEditorDidMakeChanges = function(text) {
@@ -111,16 +106,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
   App.socket.subscribeToDoc = function(docId, callback) {
     App.socket.channel = App.socket.cable.subscriptions.create({channel: "EditChannel", doc_id: docId, client_id: clientId}, {
       connected: function() {
-        // Called when the subscription is ready for use on the server
         App.socket.channel.retrieve();
       }.bind(this),
 
       disconnected: function() {
-        // Called when the subscription has been terminated by the server
       },
 
       received: function(data) {
-        console.log("RECEIVED PAYLOAD", data);
         if(data.client_id == clientId && !data.initial_retrieve) {
           return;
         }
@@ -138,7 +130,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         })
 
         patches.forEach(function(patch){
-          console.log("PATCH:", patch);
           getChainpad().message(patch);
         })
       },
@@ -148,14 +139,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
       },
 
       post: function(patch) {
-        // currentText = message;
         if(ignoreNextMessage) {
-          console.log("IGNORING SEND")
           ignoreNextMessage = false;
           return;
         }
-
-        console.log("POSTING:", patch);
 
         var result = App.crypto.encrypt(patch, App.encryptionKey(), App.authKey());
         var data = {content: result.cipher, iv: result.iv, auth: result.auth, doc_id: docId, client_id: clientId};
