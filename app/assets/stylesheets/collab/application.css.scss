@@ -49,7 +49,10 @@ html, body {
   font-size: 10px;
   margin-bottom: 3px;
 
-  opacity: 0.3;
+  &.faded {
+    opacity: 0.3;
+  }
+
 
   &:hover {
     opacity: 1.0;
@@ -65,14 +68,32 @@ html, body {
     font-size: 10px;
     text-decoration: none;
 
-
-    &:visited { text-decoration: none; color:black; }
     &:hover {
-      text-decoration: underline;
       color: black;
+      text-decoration: underline;
     }
   }
 }
+a {
+  text-decoration: none;
+  &:hover {
+    color: black;
+    text-decoration: underline;
+  }
+}
+a:visited { text-decoration: none; color:black; }
+
+#footer {
+  margin-top: 16px;
+  #encryption-status {
+    float: left;
+  }
+
+  #more-info {
+    float: right;
+  }
+}
+
 
 * {
   box-sizing: border-box;

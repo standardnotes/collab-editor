@@ -3,17 +3,30 @@
 <div id="wrapper">
   <% if @doc %>
 
-    <div id="viewing-url-wrapper" class="url-wrapper">
+    <div id="viewing-url-wrapper" class="url-wrapper faded">
       <span class="label">Viewing URL</span>:
       <a id="viewing-url" class="url" target="_blank"></a>
     </div>
 
-    <div id="editing-url-wrapper" class="url-wrapper">
+    <div id="editing-url-wrapper" class="url-wrapper faded">
       <span class="label">Editing URL</span>:
       <a id="editing-url" class="url" target="_blank"></a>
     </div>
 
+    <div class="url-wrapper">
+      <a class="label url" href="/collab" target="_blank">Create new document</a>
+    </div>
+
     <textarea id="editor" name="editor"></textarea>
+
+    <div id="footer">
+      <div id="encryption-status" class="url-wrapper faded">
+        <span class="label">Encryption status: end-to-end.</span>
+      </div>
+      <div id="more-info" class="url-wrapper faded">
+        <a class="label" href="https://standardnotes.org/extensions/collaborative-editor" target="_blank">More info</a>
+      </div>
+    </div>
   <% else %>
 
   <% end %>
