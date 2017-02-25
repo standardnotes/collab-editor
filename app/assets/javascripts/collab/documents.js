@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
       mode: "markdown"
     });
 
+    editor.setSize("100%", "100%");
+
     editor.on("change", function(cm, change){
       if(isSubscribedToDoc) {
         App.textEditorDidMakeChanges(getEditorValue());

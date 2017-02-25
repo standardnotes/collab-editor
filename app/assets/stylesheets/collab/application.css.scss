@@ -27,10 +27,12 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .CodeMirror {
-  flex: 1;
+  flex: 1 1 auto;
+  flex-grow: 1;
   width: 100%;
   height: 100%;
   resize: none;
@@ -41,6 +43,8 @@ html, body {
   font-family: monospace;
   margin-top: 10px;
   padding: 0;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
 }
 
 .url-wrapper {
