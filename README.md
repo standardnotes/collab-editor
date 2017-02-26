@@ -1,1 +1,1 @@
-More info [here](http://localhost:3002/extensions/collaborative-editor)
+More information can be found on [Standard Notes' website](https://standardnotes.org/extensions/collaborative-editor).
